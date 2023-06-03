@@ -25,6 +25,7 @@ using Il2CppAssets.Scripts.Models.Bloons.Behaviors;
 using Il2CppAssets.Scripts.Models.Towers.TowerFilters;
 using Il2CppAssets.Scripts.Simulation.Towers.Filters;
 using BTD_Mod_Helper.Api.Display;
+using Il2CppAssets.Scripts.Models.Towers.Behaviors.Attack;
 
 [assembly: MelonInfo(typeof(SallyPokehellHero.SallyPokehellHero), ModHelperData.Name, ModHelperData.Version, ModHelperData.RepoOwner)]
 [assembly: MelonGame("Ninja Kiwi", "BloonsTD6")]
@@ -214,7 +215,7 @@ public class SallyLevel9 : ModHeroLevel<Sally>
 }
 public class SallyLevel10 : ModHeroLevel<Sally>
 {
-    public override string Description => "Minty Icicle: ";
+    public override string Description => "Minty Icicle: Fires a high pierce icicle";
     public override int Level => 10;
     //public override string AbilityName => "Minty Icicle";
     //public override string AbilityDescription => "Fires a high pierce icicle";
@@ -224,7 +225,7 @@ public class SallyLevel10 : ModHeroLevel<Sally>
         var ability = new AbilityModel("Sally_Ability_Minty", "Minty Icicle", "Fires heated pins", 0, 0, Game.instance.model.GetTowerFromId(TowerType.IceMonkey).GetUpgrade(BOTTOM, 5).icon, 30, null, false, false, "SallyLevel10", 0.0f, 0, -1, false, false);
         ability.AddBehavior(new ActivateAttackModel("ActivateAttackModel_Sally", 10, true, new Il2CppInterop.Runtime.InteropTypes.Arrays.Il2CppReferenceArray<Il2CppAssets.Scripts.Models.Towers.Behaviors.Attack.AttackModel>(1),true,false,false,false,true));
         ability.GetDescendant<ActivateAttackModel>().attacks[0] = Game.instance.model.GetTowerFromId("IceMonkey-205").GetAttackModel();
-
+        ability.GetDescendant<ActivateAttackModel>().attacks[0].weapons[0].projectile.pierce = 100;
 
         towerModel.AddBehavior(ability);
     }
