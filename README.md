@@ -7,8 +7,10 @@
 
 Sally in Bloons TD 6 real!!!
 
-Pokehell by [![Sylveondev](https://github.com/Sylveondev)]]
-Sally sprites by [![Floombo](https://www.youtube.com/@Floombo)]] (from 
+![](Images/Sally-Icon.png)
+
+Pokehell by [Sylveondev](https://github.com/Sylveondev)
+Sally sprites by [Floombo](https://www.youtube.com/@Floombo)
 
 ***
 Reminder to add the GitHub topic "btd6-mod"
