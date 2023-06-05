@@ -27,6 +27,7 @@ using Il2CppAssets.Scripts.Simulation.Towers.Filters;
 using BTD_Mod_Helper.Api.Display;
 using Il2CppAssets.Scripts.Models.Towers.Behaviors.Attack;
 using Il2CppAssets.Scripts.Models.Towers.Projectiles;
+using Il2CppAssets.Scripts.Models.Towers.Weapons;
 
 [assembly: MelonInfo(typeof(SallyPokehellHero.SallyPokehellHero), ModHelperData.Name, ModHelperData.Version, ModHelperData.RepoOwner)]
 [assembly: MelonGame("Ninja Kiwi", "BloonsTD6")]
@@ -87,7 +88,7 @@ public class Sally : ModHero
     public override string GlowStyle => TowerType.Etienne; // Yellow colored
 
 
-    public override int MaxLevel => 16;
+    public override int MaxLevel => 17;
     public override float XpRatio => 1.2f;
 
     [System.Obsolete]
@@ -226,8 +227,10 @@ public class SallyLevel10 : ModHeroLevel<Sally>
         var ability = new AbilityModel("Sally_Ability_Minty", "Minty Icicle", "Fires a high pierce icicle.", 0, 0, Game.instance.model.GetTowerFromId(TowerType.IceMonkey).GetUpgrade(BOTTOM, 5).icon, 30, null, false, false, "SallyLevel10", 0.0f, 0, -1, false, false);
         ability.AddBehavior(new ActivateAttackModel("ActivateAttackModel_Sally", 10, true, new Il2CppInterop.Runtime.InteropTypes.Arrays.Il2CppReferenceArray<AttackModel>(1),true,false,false,false,true));
         ability.GetDescendant<ActivateAttackModel>().attacks[0] = Game.instance.model.GetTowerFromId("IceMonkey-205").Duplicate().GetAttackModel();
-        ability.GetDescendant<ActivateAttackModel>().attacks[0].weapons[0].projectile.pierce = 1000;
+        ability.GetDescendant<ActivateAttackModel>().attacks[0].weapons[0].projectile.pierce = 100;
         ability.GetDescendant<ActivateAttackModel>().attacks[0].weapons[0].projectile.maxPierce = -1;
+        ability.GetDescendant<ActivateAttackModel>().attacks[0].weapons[0].projectile.AddBehavior(Game.instance.model.GetTowerFromId("Quincy").Duplicate().GetAttackModel().weapons[0].projectile.GetBehavior<RetargetOnContactModel>());
+        ability.GetDescendant<ActivateAttackModel>().attacks[0].weapons[0].projectile.GetBehavior<RetargetOnContactModel>().maxBounces = 100;
         ability.GetDescendant<ActivateAttackModel>().attacks[0].weapons[0].projectile.GetBehavior<TravelStraitModel>().Lifespan = 3;
         ability.GetDescendant<ActivateAttackModel>().attacks[0].weapons[0].projectile.GetBehavior<TravelStraitModel>().lifespan = 3;
         ability.GetDescendant<ActivateAttackModel>().attacks[0].weapons[0].projectile.GetBehavior<TravelStraitModel>().Speed = 400;
@@ -262,22 +265,12 @@ public class SallyLevel12 : ModHeroLevel<Sally>
 }
 public class SallyLevel13 : ModHeroLevel<Sally>
 {
-    public override string Description => "Plus 3 pierce per pin. All towers in range get +1 damage";
+    public override string Description => "Pins do +4 damage to MOAB-Class Bloons. Pins do +4 damage to MOAB-Class Bloons.";
     public override int Level => 13;
     public override void ApplyUpgrade(TowerModel towerModel)
     {
-        towerModel.GetWeapon().projectile.pierce += 3;
-
-        towerModel.AddBehavior(new DamageSupportModel("DamageSupportModel_Sally", true, 1, "Sally:Damage", null, false, false, 50));
-        towerModel.GetBehavior<PierceSupportModel>().ApplyBuffIcon<SallyLevel13BuffIcon>();
-        //towerModel.GetBehavior<CollectCashZoneModel>().attractRange += 15;
+        
     }
-}
-public class SallyLevel13BuffIcon : ModBuffIcon
-{
-    protected override int Order => 1;
-    public override string Icon => "Sally-Sharp-Buff-Plus";
-    public override int MaxStackSize => 1;
 }
 public class SallyLevel14 : ModHeroLevel<Sally>
 {
@@ -295,12 +288,30 @@ public class SallyLevel15 : ModHeroLevel<Sally>
     public override int Level => 15;
     public override void ApplyUpgrade(TowerModel towerModel)
     {
-        towerModel.GetWeapon().projectile.AddBehavior(Game.instance.model.GetTowerFromId("DartlingGunner-200").Duplicate().GetAttackModel().weapons[0].projectile.GetDescendant<AddBehaviorToBloonModel>());
+
+        //towerModel.GetWeapon().projectile.AddBehavior(Game.instance.model.GetTowerFromId("DartlingGunner-200").Duplicate().GetAttackModel().weapons[0].projectile.GetDescendants<AddBehaviorToBloonModel>());
+        TowerModel dartling = Game.instance.model.GetTowerFromId(TowerType.DartlingGunner + "-200");
+        TowerModel wizard = Game.instance.model.GetTowerFromId(TowerType.WizardMonkey + "-030");
+
+        AddBehaviorToBloonModel electricShock = dartling.GetDescendant<AddBehaviorToBloonModel>().Duplicate();
+        AddBehaviorToBloonModel fire = wizard.GetDescendant<AddBehaviorToBloonModel>().Duplicate();
+        //electricShock.overlayType = ElectricShockDisplay.CustomOverlayType;
+        //electricShock.mutationId = ElectricShockDisplay.CustomOverlayType;
+        electricShock.filters = null;
+        electricShock.name = "TeslaCoil_ElectricShock";
+
+        foreach (var weaponModel in towerModel.GetDescendants<WeaponModel>().ToArray())
+        {
+            weaponModel.projectile.AddBehavior(electricShock);
+            weaponModel.projectile.collisionPasses = new[] { 0, 1 };
+        }
         towerModel.GetWeapon().projectile.GetDescendant<DamageOverTimeModel>().immuneBloonProperties = BloonProperties.Purple;
         /// fuck this
-        //var ability = towerModel.GetDescendant<AbilityModel>();
-        //ability.AddBehavior(new MutateProjectileOnAbilityModel("MutateProjectileOnAbilityModel_SpicyAbility", 1800, "SpicyPinsBurn", 0, Game.instance.model.GetTowerFromId("DartlingGunner-200").Duplicate().GetAttackModel().weapons[0].projectile.GetDescendant<AddBehaviorToBloonModel>(),towerModel.GetWeapon().projectile));
-        //ability.GetBehavior<MutateProjectileOnAbilityModel>().projectileBehaviorModel.GetDescendant<DamageOverTimeModel>().immuneBloonProperties = BloonProperties.Purple;
+        var ability = towerModel.GetDescendant<AbilityModel>();
+        ability.AddBehavior(new MutateProjectileOnAbilityModel("MutateProjectileOnAbilityModel_SpicyAbility", 1800, "SpicyPinsBurn", 0, new ProjectileBehaviorModel("The_Fucking_ProjectileBehaviorMode"), towerModel.GetWeapon().projectile));
+
+        ability.GetBehavior<MutateProjectileOnAbilityModel>().projectileBehaviorModel = fire;
+        //ability.GetBehavior<MutateProjectileOnAbilityModel>().projectileBehaviorModel[0].immuneBloonProperties = BloonProperties.Purple;
         //ability.GetBehavior<MutateProjectileOnAbilityModel>().GetDescendant<AddBehaviorToBloonModel>().lifespan = 2;
         //ability.GetBehavior<MutateProjectileOnAbilityModel>().GetDescendant<AddBehaviorToBloonModel>().overlayType = "Fire";
 
@@ -308,10 +319,30 @@ public class SallyLevel15 : ModHeroLevel<Sally>
         //ability.GetBehavior<MutateProjectileOnAbilityModel>().projectileBehaviorModel.overlayType = "Fire";
     }
 }
+
 public class SallyLevel16 : ModHeroLevel<Sally>
 {
-    public override string Description => "Throws 5 pins at a time.";
+    public override string Description => "Plus 3 pierce per pin. All towers in range get +1 damage";
     public override int Level => 16;
+    public override void ApplyUpgrade(TowerModel towerModel)
+    {
+        towerModel.GetWeapon().projectile.pierce += 3;
+
+        towerModel.AddBehavior(new DamageSupportModel("DamageSupportModel_Sally", true, 1, "Sally:Damage", null, false, false, 50));
+        towerModel.GetBehavior<PierceSupportModel>().ApplyBuffIcon<SallyLevel16BuffIcon>();
+        //towerModel.GetBehavior<CollectCashZoneModel>().attractRange += 15;
+    }
+}
+public class SallyLevel16BuffIcon : ModBuffIcon
+{
+    protected override int Order => 1;
+    public override string Icon => "Sally-Sharp-Buff-Plus";
+    public override int MaxStackSize => 1;
+}
+public class SallyLevel17 : ModHeroLevel<Sally>
+{
+    public override string Description => "Throws 5 pins at a time.";
+    public override int Level => 17;
     public override void ApplyUpgrade(TowerModel towerModel)
     {
         towerModel.GetDescendant<RandomEmissionModel>().count++;
