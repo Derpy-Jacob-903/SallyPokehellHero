@@ -28,6 +28,7 @@ using BTD_Mod_Helper.Api.Display;
 using Il2CppAssets.Scripts.Models.Towers.Behaviors.Attack;
 using Il2CppAssets.Scripts.Models.Towers.Projectiles;
 using Il2CppAssets.Scripts.Models.Towers.Weapons;
+using Il2CppAssets.Scripts.Models.Towers.Weapons.Behaviors;
 
 [assembly: MelonInfo(typeof(SallyPokehellHero.SallyPokehellHero), ModHelperData.Name, ModHelperData.Version, ModHelperData.RepoOwner)]
 [assembly: MelonGame("Ninja Kiwi", "BloonsTD6")]
@@ -88,8 +89,8 @@ public class Sally : ModHero
     public override string GlowStyle => TowerType.Etienne; // Yellow colored
 
 
-    public override int MaxLevel => 17;
-    public override float XpRatio => 1.2f;
+    public override int MaxLevel => 20;
+    public override float XpRatio => 1.0f;
 
     [System.Obsolete]
     public override int Abilities => 0;
@@ -105,7 +106,7 @@ public class Sally : ModHero
 }
 public class SallyLevel2 : ModHeroLevel<Sally>
 {
-    public override string Description => "Plus 1 pierce per pin.";
+    public override string Description => "Increased popping power.";
     public override int Level => 2;
     public override void ApplyUpgrade(TowerModel towerModel)
     {
@@ -148,7 +149,7 @@ public class SallyLevel3 : ModHeroLevel<Sally>
 }
 public class SallyLevel4 : ModHeroLevel<Sally>
 {
-    public override string Description => "Plus 10 Range.";
+    public override string Description => "Increased attack range.";
     public override int Level => 4;
     public override void ApplyUpgrade(TowerModel towerModel)
     {
@@ -157,8 +158,17 @@ public class SallyLevel4 : ModHeroLevel<Sally>
 }
 public class SallyLevel5 : ModHeroLevel<Sally>
 {
-    public override string Description => "Pins can pop Frozen Bloons.";
+    public override string Description => "Sally can detect Camo Bloons. Nearby Tack Shooters and Eevee also gain camo detection.";
     public override int Level => 5;
+    public override void ApplyUpgrade(TowerModel towerModel)
+    {
+        towerModel.GetDescendants<FilterInvisibleModel>().ForEach(model => model.isActive = false);
+    }
+}
+public class SallyLevel6 : ModHeroLevel<Sally>
+{
+    public override string Description => "Pins can pop Frozen Bloons.";
+    public override int Level => 6;
     public override void ApplyUpgrade(TowerModel towerModel)
     {
         foreach (var damageModel in towerModel.GetDescendants<DamageModel>().ToArray())
@@ -167,18 +177,9 @@ public class SallyLevel5 : ModHeroLevel<Sally>
         }
     }
 }
-public class SallyLevel6 : ModHeroLevel<Sally>
-{
-    public override string Description => "Sally can detect Camo Bloons.";
-    public override int Level => 6;
-    public override void ApplyUpgrade(TowerModel towerModel)
-    {
-        towerModel.GetDescendants<FilterInvisibleModel>().ForEach(model => model.isActive = false);
-    }
-}
 public class SallyLevel7 : ModHeroLevel<Sally>
 {
-    public override string Description => "Plus 2 pierce per pin. All towers in range get +1 pierce";
+    public override string Description => "Increased popping power. All towers in range get +1 pierce";
     public override int Level => 7;
     public override void ApplyUpgrade(TowerModel towerModel)
     {
@@ -199,11 +200,11 @@ public class SallyLevel7BuffIcon : ModBuffIcon
 
 public class SallyLevel8 : ModHeroLevel<Sally>
 {
-    public override string Description => "Throws 4 pins at a time.";
+    public override string Description => "Throws 5 pins at a time.";
     public override int Level => 8;
     public override void ApplyUpgrade(TowerModel towerModel)
     {
-        towerModel.GetDescendant<RandomEmissionModel>().count++;
+        towerModel.GetDescendant<RandomEmissionModel>().count += 2;
     }
 }
 public class SallyLevel9 : ModHeroLevel<Sally>
@@ -217,9 +218,9 @@ public class SallyLevel9 : ModHeroLevel<Sally>
 }
 public class SallyLevel10 : ModHeroLevel<Sally>
 {
-    public override string Description => "Minty Icicle: Fires a high pierce icicle";
+    public override string Description => "Freezy Frost: Fires a high pierce icicle, freezing MOAB-class Bloons";
     public override int Level => 10;
-    //public override string AbilityName => "Minty Icicle";
+    //public override string AbilityName => "Freezy Frost";
     //public override string AbilityDescription => "Fires a high pierce icicle";
     public override void ApplyUpgrade(TowerModel towerModel)
     {
@@ -237,55 +238,87 @@ public class SallyLevel10 : ModHeroLevel<Sally>
         ability.GetDescendant<ActivateAttackModel>().attacks[0].weapons[0].projectile.GetBehavior<TravelStraitModel>().speed = 400;
         //ability.GetDescendant<ActivateAttackModel>().attacks[0].weapons[0].projectile.AddBehavior(Game.instance.model.GetTowerFromId("DartMonkey-502").GetAttackModel().weapons[0].projectile.GetBehavior<TravelStraitModel>().Duplicate());
 
+        //var splat = ability.GetDescendant<ActivateAttackModel>().attacks[0].weapons[0].projectile.GetDescendant<>
+        ability.GetDescendant<ActivateAttackModel>().attacks[0].weapons[0].projectile.RemoveBehavior<CreateProjectileOnContactModel>();
+        ability.GetDescendant<ActivateAttackModel>().attacks[0].weapons[0].projectile.RemoveBehavior<CreateEffectOnContactModel>();
+        ability.GetDescendant<ActivateAttackModel>().attacks[0].weapons[0].projectile.AddBehavior(Game.instance.model.GetTowerFromId("DarkPhoenixV1").GetDescendant<DamageModifierForTagModel>());
+
         ability.GetDescendant<ActivateAttackModel>().attacks[0].weapons[0].projectile.GetDescendant<FreezeModel>().layers = 10;
         ability.GetDescendant<ActivateAttackModel>().attacks[0].weapons[0].projectile.GetDescendant<FreezeModel>().Lifespan = 10;
         ability.GetDescendant<ActivateAttackModel>().attacks[0].weapons[0].projectile.GetDescendant<FreezeModel>().lifespan = 10;
         ability.GetDescendant<ActivateAttackModel>().attacks[0].weapons[0].projectile.GetDescendant<FreezeModel>().damageModel.damage--;
+
+
+
+
         towerModel.AddBehavior(ability);
     }
 }
 
 public class SallyLevel11 : ModHeroLevel<Sally>
 {
-    public override string Description => "Plus 10 Range.";
+    public override string Description => "Increased attack range.";
     public override int Level => 11;
     public override void ApplyUpgrade(TowerModel towerModel)
     {
         towerModel.IncreaseRange(10);
     }
 }
+
 public class SallyLevel12 : ModHeroLevel<Sally>
 {
-    public override string Description => "Increased attack speed.";
+    public override string Description => "Increases attack speed and pierce of nearby towers, especially Tack Shooters and Eevee. Stacks with Shinobi Tactics.";
     public override int Level => 12;
     public override void ApplyUpgrade(TowerModel towerModel)
     {
-        towerModel.GetWeapons().ForEach(model => model.rate -= 0.1f);
+        var Shinobi = Game.instance.model.GetTowerFromId("NinjaMonkey-030").GetDescendant<SupportShinobiTacticsModel>().Duplicate();
+        var ShinobiA = Shinobi.Duplicate();
+        var ShinobiB = Shinobi.Duplicate();
+        ShinobiA.filters[0] = null;
+        ShinobiA.name = "SupportShinobiTacticsModel_Support_";
+        ShinobiB.filters[0].GetDescendant<FilterInBaseTowerIdModel>().baseIds = new Il2CppInterop.Runtime.InteropTypes.Arrays.Il2CppStringArray(3);
+        ShinobiB.filters[0].GetDescendant<FilterInBaseTowerIdModel>().baseIds[0] = "TackShooter";
+        ShinobiB.filters[0].GetDescendant<FilterInBaseTowerIdModel>().baseIds[1] = "Eevee-Eevee";
+        ShinobiB.filters[0].GetDescendant<FilterInBaseTowerIdModel>().baseIds[2] = "SallyPokehellHero-Sally";
+        ShinobiB.name = "SupportShinobiTacticsModel_Support_Tack";
+        towerModel.AddBehavior(ShinobiA);
+        towerModel.AddBehavior(ShinobiB);
+        towerModel.AddBehavior(ShinobiB);
+        //towerModel.GetWeapons().ForEach(model => model.rate -= 0.1f);
     }
 }
 public class SallyLevel13 : ModHeroLevel<Sally>
 {
-    public override string Description => "Pins do +4 damage to MOAB-Class Bloons. Pins do +4 damage to MOAB-Class Bloons.";
+    public override string Description => "Spicy Shots are always active, ";
     public override int Level => 13;
     public override void ApplyUpgrade(TowerModel towerModel)
     {
-        
+
     }
 }
 public class SallyLevel14 : ModHeroLevel<Sally>
 {
-    public override string Description => "Ability cooldowns reduced by 25%.";
+    public override string Description => "Pins do +4 damage to MOAB-Class Bloons.";
     public override int Level => 14;
+    public override void ApplyUpgrade(TowerModel towerModel)
+    {
+        towerModel.GetWeapon().projectile.AddBehavior<DamageModifierForTagModel>(new DamageModifierForTagModel("DamageModifierForTagModel_Projectile", "Moabs", 1.0f, 4.0f, false, false));
+    }
+}
+public class SallyLevel15 : ModHeroLevel<Sally>
+{
+    public override string Description => "Ability cooldowns reduced by 25%.";
+    public override int Level => 15;
     public override void ApplyUpgrade(TowerModel towerModel)
     {
         towerModel.GetAbilities().ForEach(model => model.cooldown *= 0.75f);
         //towerModel.GetBehavior<CollectCashZoneModel>().attractRange += 15;
     }
 }
-public class SallyLevel15 : ModHeroLevel<Sally>
+public class SallyLevel16 : ModHeroLevel<Sally>
 {
-    public override string Description => "Pins shock bloons for 1 sec. Spicy Pins burn bloons for 2 sec.";
-    public override int Level => 15;
+    public override string Description => "Pins shock bloons for 1 sec.";
+    public override int Level => 16;
     public override void ApplyUpgrade(TowerModel towerModel)
     {
 
@@ -307,10 +340,10 @@ public class SallyLevel15 : ModHeroLevel<Sally>
         }
         towerModel.GetWeapon().projectile.GetDescendant<DamageOverTimeModel>().immuneBloonProperties = BloonProperties.Purple;
         /// fuck this
-        var ability = towerModel.GetDescendant<AbilityModel>();
-        ability.AddBehavior(new MutateProjectileOnAbilityModel("MutateProjectileOnAbilityModel_SpicyAbility", 1800, "SpicyPinsBurn", 0, new ProjectileBehaviorModel("The_Fucking_ProjectileBehaviorMode"), towerModel.GetWeapon().projectile));
+        //var ability = towerModel.GetDescendant<AbilityModel>();
+        //ability.AddBehavior(new MutateProjectileOnAbilityModel("MutateProjectileOnAbilityModel_SpicyAbility", 1800, "SpicyPinsBurn", 0, new ProjectileBehaviorModel("The_Fucking_ProjectileBehaviorMode"), towerModel.GetWeapon().projectile));
 
-        ability.GetBehavior<MutateProjectileOnAbilityModel>().projectileBehaviorModel = fire;
+        //ability.GetBehavior<MutateProjectileOnAbilityModel>().projectileBehaviorModel = fire;
         //ability.GetBehavior<MutateProjectileOnAbilityModel>().projectileBehaviorModel[0].immuneBloonProperties = BloonProperties.Purple;
         //ability.GetBehavior<MutateProjectileOnAbilityModel>().GetDescendant<AddBehaviorToBloonModel>().lifespan = 2;
         //ability.GetBehavior<MutateProjectileOnAbilityModel>().GetDescendant<AddBehaviorToBloonModel>().overlayType = "Fire";
@@ -320,10 +353,10 @@ public class SallyLevel15 : ModHeroLevel<Sally>
     }
 }
 
-public class SallyLevel16 : ModHeroLevel<Sally>
+public class SallyLevel17 : ModHeroLevel<Sally>
 {
     public override string Description => "Plus 3 pierce per pin. All towers in range get +1 damage";
-    public override int Level => 16;
+    public override int Level => 17;
     public override void ApplyUpgrade(TowerModel towerModel)
     {
         towerModel.GetWeapon().projectile.pierce += 3;
@@ -333,18 +366,42 @@ public class SallyLevel16 : ModHeroLevel<Sally>
         //towerModel.GetBehavior<CollectCashZoneModel>().attractRange += 15;
     }
 }
+public class SallyLevel18 : ModHeroLevel<Sally>
+{
+    public override string Description => "Pins pop twice as many layers of Bloon.";
+    public override int Level => 18;
+    public override void ApplyUpgrade(TowerModel towerModel)
+    {
+
+    }
+}
 public class SallyLevel16BuffIcon : ModBuffIcon
 {
     protected override int Order => 1;
     public override string Icon => "Sally-Sharp-Buff-Plus";
     public override int MaxStackSize => 1;
 }
-public class SallyLevel17 : ModHeroLevel<Sally>
+public class SallyLevel19 : ModHeroLevel<Sally>
 {
-    public override string Description => "Throws 5 pins at a time.";
-    public override int Level => 17;
+    public override string Description => "Throws 8 pins at a time.";
+    public override int Level => 19;
     public override void ApplyUpgrade(TowerModel towerModel)
     {
-        towerModel.GetDescendant<RandomEmissionModel>().count++;
+        towerModel.GetDescendant<RandomEmissionModel>().count += 3;
+    }
+}
+
+public class SallyLevel20 : ModHeroLevel<Sally>
+{
+    public override string Description => "Veevee Volley: ";
+    public override int Level => 20;
+    public override void ApplyUpgrade(TowerModel towerModel)
+    {
+
+        towerModel.GetWeapon().projectile.AddBehavior(Game.instance.model.GetTowerFromId("DarkPhoenixV1").GetDescendant<DamageModifierForTagModel>());
+        towerModel.GetWeapon().projectile.GetDescendant<DamageModifierForTagModel>().damageAddative = 80;
+        //towerModel.GetWeapon().projectile.GetDescendant<DamageOverTimeModel>().damageModifierModels.AddTo;
+        //towerModel.GetWeapon().AddBehavior(new LifeBasedAttackSpeedModel("LifeBasedAttackSpeedModel_Sally",-0.02f,100,2,""));
+        //towerModel.GetWeapon().AddBehavior(new LifeRegenModel()
     }
 }
