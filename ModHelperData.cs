@@ -2,8 +2,8 @@ namespace SallyPokehellHero;
 
 public static class ModHelperData
 {
-    public const string WorksOnVersion = "38.2";
-    public const string Version = "0.4.0";
+    public const string WorksOnVersion = "36.1";
+    public const string Version = "0.3.1";
     public const string Name = "SallyPokehellHero";
 
     public const string Description = "Add Sally from Pokehell to Bloons TD 6 as new Hero!";
