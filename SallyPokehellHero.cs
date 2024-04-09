@@ -90,7 +90,7 @@ public class Sally : ModHero
 
 
     public override int MaxLevel => 20;
-    public override float XpRatio => 1.0f;
+    public override float XpRatio => 1.2f;
 
     [System.Obsolete]
     public override int Abilities => 0;
@@ -116,7 +116,7 @@ public class SallyLevel2 : ModHeroLevel<Sally>
 }
 public class SallyLevel3 : ModHeroLevel<Sally>
 {
-    public override string Description => "Spicy Pins: Throws superhot pins that do +1 damage, have +1 pierce, and can pop any Bloon type.";
+    public override string Description => "Sizzly Shots: Throws superhot pins that do +1 damage, have +1 pierce, and can pop any Bloon type.";
     public override int Level => 3;
     //public override string AbilityName => "Spicy Pins";
     //public override string AbilityDescription => "Throws superhot pins that do +1 damage, have +1 pierce, and can pop any Bloon type.";
@@ -163,6 +163,7 @@ public class SallyLevel5 : ModHeroLevel<Sally>
     public override void ApplyUpgrade(TowerModel towerModel)
     {
         towerModel.GetDescendants<FilterInvisibleModel>().ForEach(model => model.isActive = false);
+
     }
 }
 public class SallyLevel6 : ModHeroLevel<Sally>
@@ -239,6 +240,7 @@ public class SallyLevel10 : ModHeroLevel<Sally>
         //ability.GetDescendant<ActivateAttackModel>().attacks[0].weapons[0].projectile.AddBehavior(Game.instance.model.GetTowerFromId("DartMonkey-502").GetAttackModel().weapons[0].projectile.GetBehavior<TravelStraitModel>().Duplicate());
 
         //var splat = ability.GetDescendant<ActivateAttackModel>().attacks[0].weapons[0].projectile.GetDescendant<>
+        ability.GetDescendant<ActivateAttackModel>().attacks[0].weapons[0].projectile.AddBehavior(ability.GetDescendant<ActivateAttackModel>().attacks[0].weapons[0].projectile.GetBehavior<CreateProjectileOnContactModel>().GetDescendant<FreezeModel>());
         ability.GetDescendant<ActivateAttackModel>().attacks[0].weapons[0].projectile.RemoveBehavior<CreateProjectileOnContactModel>();
         ability.GetDescendant<ActivateAttackModel>().attacks[0].weapons[0].projectile.RemoveBehavior<CreateEffectOnContactModel>();
         ability.GetDescendant<ActivateAttackModel>().attacks[0].weapons[0].projectile.AddBehavior(Game.instance.model.GetTowerFromId("DarkPhoenixV1").GetDescendant<DamageModifierForTagModel>());
@@ -274,12 +276,12 @@ public class SallyLevel12 : ModHeroLevel<Sally>
         var Shinobi = Game.instance.model.GetTowerFromId("NinjaMonkey-030").GetDescendant<SupportShinobiTacticsModel>().Duplicate();
         var ShinobiA = Shinobi.Duplicate();
         var ShinobiB = Shinobi.Duplicate();
-        ShinobiA.filters[0] = null;
+        //ShinobiA.filters[0] = null;
         ShinobiA.name = "SupportShinobiTacticsModel_Support_";
-        ShinobiB.filters[0].GetDescendant<FilterInBaseTowerIdModel>().baseIds = new Il2CppInterop.Runtime.InteropTypes.Arrays.Il2CppStringArray(3);
-        ShinobiB.filters[0].GetDescendant<FilterInBaseTowerIdModel>().baseIds[0] = "TackShooter";
-        ShinobiB.filters[0].GetDescendant<FilterInBaseTowerIdModel>().baseIds[1] = "Eevee-Eevee";
-        ShinobiB.filters[0].GetDescendant<FilterInBaseTowerIdModel>().baseIds[2] = "SallyPokehellHero-Sally";
+        //ShinobiB.filters[0].GetDescendant<FilterInBaseTowerIdModel>().baseIds = new Il2CppInterop.Runtime.InteropTypes.Arrays.Il2CppStringArray(3);
+        //ShinobiB.filters[0].GetDescendant<FilterInBaseTowerIdModel>().baseIds[0] = "TackShooter";
+        //ShinobiB.filters[0].GetDescendant<FilterInBaseTowerIdModel>().baseIds[1] = "Eevee-Eevee";
+        //ShinobiB.filters[0].GetDescendant<FilterInBaseTowerIdModel>().baseIds[2] = "SallyPokehellHero-Sally";
         ShinobiB.name = "SupportShinobiTacticsModel_Support_Tack";
         towerModel.AddBehavior(ShinobiA);
         towerModel.AddBehavior(ShinobiB);
@@ -289,11 +291,13 @@ public class SallyLevel12 : ModHeroLevel<Sally>
 }
 public class SallyLevel13 : ModHeroLevel<Sally>
 {
-    public override string Description => "Spicy Shots are always active, ";
+    public override string Description => "Sizzly Shots are always active, Buzzy Blitz";
     public override int Level => 13;
     public override void ApplyUpgrade(TowerModel towerModel)
     {
-
+        towerModel.GetWeapon().projectile.pierce++;
+        towerModel.GetWeapon().projectile.GetDamageModel().damage++;
+        towerModel.GetWeapon().projectile.display = Game.instance.model.GetTowerFromId("TackShooter-300").Duplicate().GetWeapon().projectile.display;
     }
 }
 public class SallyLevel14 : ModHeroLevel<Sally>
