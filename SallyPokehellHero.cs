@@ -158,7 +158,7 @@ public class SallyLevel4 : ModHeroLevel<Sally>
 }
 public class SallyLevel5 : ModHeroLevel<Sally>
 {
-    public override string Description => "Sally can detect Camo Bloons. Nearby Tack Shooters and Eevee also gain camo detection.";
+    public override string Description => "Sally can detect Camo Bloons. (Not Nearby Tack Shooters and Eevee also gain camo detection.)";
     public override int Level => 5;
     public override void ApplyUpgrade(TowerModel towerModel)
     {
@@ -269,35 +269,62 @@ public class SallyLevel11 : ModHeroLevel<Sally>
 
 public class SallyLevel12 : ModHeroLevel<Sally>
 {
-    public override string Description => "Increases attack speed and pierce of nearby towers, especially Tack Shooters and Eevee. Stacks with Shinobi Tactics.";
+    public override string Description => "Not Implemented :(";
     public override int Level => 12;
     public override void ApplyUpgrade(TowerModel towerModel)
     {
-        var Shinobi = Game.instance.model.GetTowerFromId("NinjaMonkey-030").GetDescendant<SupportShinobiTacticsModel>().Duplicate();
-        var ShinobiA = Shinobi.Duplicate();
-        var ShinobiB = Shinobi.Duplicate();
+        //var Shinobi = Game.instance.model.GetTowerFromId("NinjaMonkey-030").GetDescendant<SupportShinobiTacticsModel>().Duplicate();
+        //var ShinobiA = Shinobi.Duplicate();
+        //var ShinobiB = Shinobi.Duplicate();
         //ShinobiA.filters[0] = null;
-        ShinobiA.name = "SupportShinobiTacticsModel_Support_";
+        //ShinobiA.name = "SupportShinobiTacticsModel_Support_";
+        //ShinobiB.filters[0].GetDescendant<FilterInBaseTowerIdModel>().baseIds[0] = "TackShooter";
         //ShinobiB.filters[0].GetDescendant<FilterInBaseTowerIdModel>().baseIds = new Il2CppInterop.Runtime.InteropTypes.Arrays.Il2CppStringArray(3);
         //ShinobiB.filters[0].GetDescendant<FilterInBaseTowerIdModel>().baseIds[0] = "TackShooter";
         //ShinobiB.filters[0].GetDescendant<FilterInBaseTowerIdModel>().baseIds[1] = "Eevee-Eevee";
         //ShinobiB.filters[0].GetDescendant<FilterInBaseTowerIdModel>().baseIds[2] = "SallyPokehellHero-Sally";
-        ShinobiB.name = "SupportShinobiTacticsModel_Support_Tack";
-        towerModel.AddBehavior(ShinobiA);
-        towerModel.AddBehavior(ShinobiB);
-        towerModel.AddBehavior(ShinobiB);
+        ///ShinobiB.name = "SupportShinobiTacticsModel_Support_Tack";
+        ///towerModel.AddBehavior(ShinobiA);
+        ///towerModel.AddBehavior(ShinobiB);
+        ///towerModel.AddBehavior(ShinobiB);
         //towerModel.GetWeapons().ForEach(model => model.rate -= 0.1f);
     }
 }
+/// <summary>
+///public class SallyLevel12old : ModHeroLevel<Sally>
+///{
+    ///public override string Description => "Increases attack speed and pierce of nearby towers, especially Tack Shooters and Eevee. Stacks with Shinobi Tactics.";
+    ///public override int Level => 12;
+    ///public override void ApplyUpgrade(TowerModel towerModel)
+    ///{
+        //var Shinobi = Game.instance.model.GetTowerFromId("NinjaMonkey-030").GetDescendant<SupportShinobiTacticsModel>().Duplicate();
+        //var ShinobiA = Shinobi.Duplicate();
+        //var ShinobiB = Shinobi.Duplicate();
+        //ShinobiA.filters[0] = null;
+        //ShinobiA.name = "SupportShinobiTacticsModel_Support_";
+        //ShinobiB.filters[0].GetDescendant<FilterInBaseTowerIdModel>().baseIds[0] = "TackShooter";
+        //ShinobiB.filters[0].GetDescendant<FilterInBaseTowerIdModel>().baseIds = new Il2CppInterop.Runtime.InteropTypes.Arrays.Il2CppStringArray(3);
+        //ShinobiB.filters[0].GetDescendant<FilterInBaseTowerIdModel>().baseIds[0] = "TackShooter";
+        //ShinobiB.filters[0].GetDescendant<FilterInBaseTowerIdModel>().baseIds[1] = "Eevee-Eevee";
+        //ShinobiB.filters[0].GetDescendant<FilterInBaseTowerIdModel>().baseIds[2] = "SallyPokehellHero-Sally";
+        ///ShinobiB.name = "SupportShinobiTacticsModel_Support_Tack";
+        ///towerModel.AddBehavior(ShinobiA);
+        ///towerModel.AddBehavior(ShinobiB);
+        ///towerModel.AddBehavior(ShinobiB);
+        //towerModel.GetWeapons().ForEach(model => model.rate -= 0.1f);
+    ///}
+///}
+/// </summary>
 public class SallyLevel13 : ModHeroLevel<Sally>
 {
-    public override string Description => "Sizzly Shots are always active, Buzzy Blitz";
+    public override string Description => "Sizzly Shots are always active,/n Buzzy Blitz: Not Implemented";
     public override int Level => 13;
     public override void ApplyUpgrade(TowerModel towerModel)
     {
         towerModel.GetWeapon().projectile.pierce++;
         towerModel.GetWeapon().projectile.GetDamageModel().damage++;
         towerModel.GetWeapon().projectile.display = Game.instance.model.GetTowerFromId("TackShooter-300").Duplicate().GetWeapon().projectile.display;
+        towerModel.GetAbilities().Remove(towerModel.GetAbility());
     }
 }
 public class SallyLevel14 : ModHeroLevel<Sally>
@@ -335,7 +362,7 @@ public class SallyLevel16 : ModHeroLevel<Sally>
         //electricShock.overlayType = ElectricShockDisplay.CustomOverlayType;
         //electricShock.mutationId = ElectricShockDisplay.CustomOverlayType;
         electricShock.filters = null;
-        electricShock.name = "TeslaCoil_ElectricShock";
+        //electricShock.name = "TeslaCoil_ElectricShock";
 
         foreach (var weaponModel in towerModel.GetDescendants<WeaponModel>().ToArray())
         {
@@ -397,7 +424,7 @@ public class SallyLevel19 : ModHeroLevel<Sally>
 
 public class SallyLevel20 : ModHeroLevel<Sally>
 {
-    public override string Description => "Veevee Volley: ";
+    public override string Description => "Veevee Volley: Not Implemented";
     public override int Level => 20;
     public override void ApplyUpgrade(TowerModel towerModel)
     {
@@ -407,5 +434,6 @@ public class SallyLevel20 : ModHeroLevel<Sally>
         //towerModel.GetWeapon().projectile.GetDescendant<DamageOverTimeModel>().damageModifierModels.AddTo;
         //towerModel.GetWeapon().AddBehavior(new LifeBasedAttackSpeedModel("LifeBasedAttackSpeedModel_Sally",-0.02f,100,2,""));
         //towerModel.GetWeapon().AddBehavior(new LifeRegenModel()
+
     }
 }
