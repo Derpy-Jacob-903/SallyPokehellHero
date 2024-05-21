@@ -77,11 +77,11 @@ public class Sally : ModHero
     public override int Cost => 600;
 
     public override string DisplayName => "Sally";
-    public override string Title => "Big goofball that wants to become a rap star!";
-    public override string Level1Description => "Quickly throws pins at the Bloons.";
+    public override string Title => "Eevee";
+    public override string Level1Description => "Quickly throws pins at the Bloons. ";
     public override bool Use2DModel => true;
     public override string Description =>
-        "Sally quickly throws pins at the Bloons.";
+        "Sally quickly throws pins at Bloons and buffs nearby monkeys, especially Tack Shooters";
 
 
     public override string NameStyle => TowerType.Etienne; // Yellow colored
@@ -116,7 +116,7 @@ public class SallyLevel2 : ModHeroLevel<Sally>
 }
 public class SallyLevel3 : ModHeroLevel<Sally>
 {
-    public override string Description => "Sizzly Shots: Throws superhot pins that do +1 damage, have +1 pierce, and can pop any Bloon type.";
+    public override string Description => "Sizzly Shots: Throws superhot pins that do +1 damage, have +1 pierce, and can pop any Bloon type. Grants Lead popping power.";
     public override int Level => 3;
     //public override string AbilityName => "Spicy Pins";
     //public override string AbilityDescription => "Throws superhot pins that do +1 damage, have +1 pierce, and can pop any Bloon type.";
@@ -158,7 +158,7 @@ public class SallyLevel4 : ModHeroLevel<Sally>
 }
 public class SallyLevel5 : ModHeroLevel<Sally>
 {
-    public override string Description => "Sally can detect Camo Bloons. (Not Nearby Tack Shooters and Eevee also gain camo detection.)";
+    public override string Description => "Sally can detect Camo Bloons, and grants nearby Tack Shooters Camo detection.";
     public override int Level => 5;
     public override void ApplyUpgrade(TowerModel towerModel)
     {
@@ -168,7 +168,7 @@ public class SallyLevel5 : ModHeroLevel<Sally>
 }
 public class SallyLevel6 : ModHeroLevel<Sally>
 {
-    public override string Description => "Pins can pop Frozen Bloons.";
+    public override string Description => "Pins and nearby Tack Shooters can pop Frozen Bloons.";
     public override int Level => 6;
     public override void ApplyUpgrade(TowerModel towerModel)
     {
@@ -317,7 +317,7 @@ public class SallyLevel12 : ModHeroLevel<Sally>
 /// </summary>
 public class SallyLevel13 : ModHeroLevel<Sally>
 {
-    public override string Description => "Sizzly Shots are always active,/n Buzzy Blitz: Not Implemented";
+    public override string Description => "Sizzly Shots are always active,  /n Buzzy Blitz: Not Implemented";
     public override int Level => 13;
     public override void ApplyUpgrade(TowerModel towerModel)
     {
@@ -338,7 +338,7 @@ public class SallyLevel14 : ModHeroLevel<Sally>
 }
 public class SallyLevel15 : ModHeroLevel<Sally>
 {
-    public override string Description => "Ability cooldowns reduced by 25%.";
+    public override string Description => "Freezy Frost cooldown reduced by 25%. Buzzy Blitz de";
     public override int Level => 15;
     public override void ApplyUpgrade(TowerModel towerModel)
     {
@@ -428,7 +428,7 @@ public class SallyLevel20 : ModHeroLevel<Sally>
     public override int Level => 20;
     public override void ApplyUpgrade(TowerModel towerModel)
     {
-
+        towerModel.AddBehavior(Game.instance.model.GetTowerFromId("StrikerJones 20").GetDescendant<RateSupportBombExpertModel>());
         towerModel.GetWeapon().projectile.AddBehavior(Game.instance.model.GetTowerFromId("DarkPhoenixV1").GetDescendant<DamageModifierForTagModel>());
         towerModel.GetWeapon().projectile.GetDescendant<DamageModifierForTagModel>().damageAddative = 80;
         //towerModel.GetWeapon().projectile.GetDescendant<DamageOverTimeModel>().damageModifierModels.AddTo;
