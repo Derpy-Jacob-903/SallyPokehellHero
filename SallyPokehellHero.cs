@@ -116,7 +116,7 @@ public class SallyLevel2 : ModHeroLevel<Sally>
 }
 public class SallyLevel3 : ModHeroLevel<Sally>
 {
-    public override string Description => "Sizzly Shots: Throws superhot pins that do +1 damage, have +1 pierce, and can pop any Bloon type. Grants Lead popping power.";
+    public override string Description => "Sizzly Shots: Throws superhot pins that do +1 damage, have +1 pierce, and can pop any Bloon type. Grants Lead popping power to.";
     public override int Level => 3;
     //public override string AbilityName => "Spicy Pins";
     //public override string AbilityDescription => "Throws superhot pins that do +1 damage, have +1 pierce, and can pop any Bloon type.";
@@ -269,7 +269,7 @@ public class SallyLevel11 : ModHeroLevel<Sally>
 
 public class SallyLevel12 : ModHeroLevel<Sally>
 {
-    public override string Description => "Not Implemented :(";
+    public override string Description => "every";
     public override int Level => 12;
     public override void ApplyUpgrade(TowerModel towerModel)
     {
