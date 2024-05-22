@@ -78,7 +78,7 @@ public class Sally : ModHero
 
     public override string DisplayName => "Sally";
     public override string Title => "Eevee";
-    public override string Level1Description => "Quickly throws pins at the Bloons. ";
+    public override string Level1Description => "Quickly throws pins at the Bloons. Buffs Tack Shooters range.";
     public override bool Use2DModel => true;
     public override string Description =>
         "Sally quickly throws pins at Bloons and buffs nearby monkeys, especially Tack Shooters";
@@ -269,7 +269,7 @@ public class SallyLevel11 : ModHeroLevel<Sally>
 
 public class SallyLevel12 : ModHeroLevel<Sally>
 {
-    public override string Description => "every";
+    public override string Description => "Every 3rd attack applies a (75%) slow";
     public override int Level => 12;
     public override void ApplyUpgrade(TowerModel towerModel)
     {
@@ -317,7 +317,7 @@ public class SallyLevel12 : ModHeroLevel<Sally>
 /// </summary>
 public class SallyLevel13 : ModHeroLevel<Sally>
 {
-    public override string Description => "Sizzly Shots are always active,  /n Buzzy Blitz: Not Implemented";
+    public override string Description => "Sizzly Shots are always active, Buzzy Blitz: Boosts Sally's attack speed and slowdown duration and boosts Tack Shooters' fire rate and pierce.";
     public override int Level => 13;
     public override void ApplyUpgrade(TowerModel towerModel)
     {
@@ -329,7 +329,7 @@ public class SallyLevel13 : ModHeroLevel<Sally>
 }
 public class SallyLevel14 : ModHeroLevel<Sally>
 {
-    public override string Description => "Pins do +4 damage to MOAB-Class Bloons.";
+    public override string Description => "Pins do +4 damage to MOAB-Class Bloons. Can slow lesser MOAB-Class Bloons";
     public override int Level => 14;
     public override void ApplyUpgrade(TowerModel towerModel)
     {
@@ -338,7 +338,7 @@ public class SallyLevel14 : ModHeroLevel<Sally>
 }
 public class SallyLevel15 : ModHeroLevel<Sally>
 {
-    public override string Description => "Freezy Frost cooldown reduced by 25%. Buzzy Blitz de";
+    public override string Description => "Freezy Frost cooldown reduced by 25%. Buzzy Blitz duration increased";
     public override int Level => 15;
     public override void ApplyUpgrade(TowerModel towerModel)
     {
