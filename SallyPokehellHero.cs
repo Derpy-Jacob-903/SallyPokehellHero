@@ -29,6 +29,11 @@ using Il2CppAssets.Scripts.Models.Towers.Behaviors.Attack;
 using Il2CppAssets.Scripts.Models.Towers.Projectiles;
 using Il2CppAssets.Scripts.Models.Towers.Weapons;
 using Il2CppAssets.Scripts.Models.Towers.Weapons.Behaviors;
+using BTD_Mod_Helper.Api.Enums;
+using Il2CppAssets.Scripts.Models.Towers.Behaviors.Attack.Behaviors;
+using Il2CppInterop.Runtime.InteropTypes.Arrays;
+using UnityEngine;
+using Random = System.Random;
 
 [assembly: MelonInfo(typeof(SallyPokehellHero.SallyPokehellHero), ModHelperData.Name, ModHelperData.Version, ModHelperData.RepoOwner)]
 [assembly: MelonGame("Ninja Kiwi", "BloonsTD6")]
@@ -77,11 +82,11 @@ public class Sally : ModHero
     public override int Cost => 600;
 
     public override string DisplayName => "Sally";
-    public override string Title => "Big goofball that wants to become a rap star!";
-    public override string Level1Description => "Quickly throws pins at the Bloons.";
+    public override string Title => "Eevee";
+    public override string Level1Description => "Quickly throws pins at the Bloons. All Tack Shooters in radius get more range.";
     public override bool Use2DModel => true;
     public override string Description =>
-        "Sally quickly throws pins at the Bloons.";
+        "Sally quickly throws pins at the Bloons, while supporting other Monkeys, particularly Tack Shooters.";
 
 
     public override string NameStyle => TowerType.Etienne; // Yellow colored
@@ -93,15 +98,24 @@ public class Sally : ModHero
     public override float XpRatio => 1.2f;
 
     [System.Obsolete]
-    public override int Abilities => 0;
+    public override int Abilities => 2;
 
     public override void ModifyBaseTowerModel(TowerModel towerModel)
     {
         towerModel.mods = Game.instance.model.GetTowerFromId("ObynGreenfoot").mods;
         towerModel.GetDescendant<RandomEmissionModel>().count = 3;
-        towerModel.GetWeapon().rate *= 0.6f;
-        towerModel.GetWeapon().Rate *= 0.6f;
+        towerModel.GetWeapon().rate *= 0.9f;
+        towerModel.GetWeapon().Rate *= 0.9f;
         towerModel.GetWeapon().projectile.display = Game.instance.model.GetTowerFromId(TowerType.TackShooter).Duplicate().GetWeapon().projectile.display;
+
+        var tackBuff = Game.instance.model.GetTowerFromId("MonkeyVillage").GetDescendant<RangeSupportModel>().Duplicate();
+        tackBuff.mutatorId = "Sally:Range";
+        tackBuff.filters = new Il2CppReferenceArray<TowerFilterModel>(0);
+        var fillterModels = tackBuff.filters.ToList();
+        fillterModels.Clear();
+        fillterModels.Add(new FilterInBaseTowerIdModel("Sally_FilterInBaseTowerIdModel", new Il2CppStringArray(["TackShooter"])));
+        tackBuff.filters = fillterModels.ToIl2CppReferenceArray();
+        towerModel.AddBehavior(tackBuff);
     }
 }
 public class SallyLevel2 : ModHeroLevel<Sally>
@@ -116,7 +130,7 @@ public class SallyLevel2 : ModHeroLevel<Sally>
 }
 public class SallyLevel3 : ModHeroLevel<Sally>
 {
-    public override string Description => "Sizzly Shots: Throws superhot pins that do +1 damage, have +1 pierce, and can pop any Bloon type.";
+    public override string Description => "Sizzly Shots: Throws superhot pins that do +1 damage, have +1 pierce, and can pop any Bloon type. Ability also allows nearby Tack Shooters to hit all Bloon types except Camo.";
     public override int Level => 3;
     //public override string AbilityName => "Spicy Pins";
     //public override string AbilityDescription => "Throws superhot pins that do +1 damage, have +1 pierce, and can pop any Bloon type.";
@@ -124,26 +138,29 @@ public class SallyLevel3 : ModHeroLevel<Sally>
     {
         var abilityChurchill = Game.instance.model.GetTowerFromId("CaptainChurchill 3").Duplicate().GetBehavior<AbilityModel>();
 
-        var ability = new AbilityModel("Sally_Ability_Spicy", "Spicy Shots", "Fires heated pins", 0,0, Game.instance.model.GetTowerFromId("TackShooter").GetUpgrade(TOP, 3).icon, 30, null, false, false, "SallyLevel3", 0.0f, 0, -1, false, false);
-        ability.AddBehavior(new LongArmOfLightModel("LongArmOfLightModel_Sally",10,1,new AssetPathModel("AssetPathModel_Spicy", Game.instance.model.GetTowerFromId("TackShooter-300").Duplicate().GetWeapon().projectile.display),1,0,1, "Sally_Ability_Spicy"));
-        //ability.AddBehavior(abilityChurchill.GetDescendant<ChangeDamageTypeModel>());
-        //ability.GetDescendant<ChangeDamageTypeModel>().lifespanFrames = 900;
-        //ability.AddBehavior(Game.instance.model.GetTowerFromId("Gwendolin 6").GetDescendant<HeatItUpDamageBuffModel>().Duplicate());
-        //ability.GetDescendant<HeatItUpDamageBuffModel>().lifespan = 10;
-        //ability.GetDescendant<HeatItUpDamageBuffModel>().lifespanFrames = 900;
-        //ability.GetDescendant<HeatItUpDamageBuffModel>().is;
-        //ability.AddBehavior(Game.instance.model.GetTowerFromId("TackShooter-300").GetDescendant<PierceUpTowersModel>());
-        //ability.AddBehavior(new MutateProjectileOnAbilityModel("MutateProjectileOnAbilityModel_SpicyAbility", 1800, "", 1, ));
-        //ability.AddBehavior(new ChangeProjectileDisplayModel("ChangeProjectileDisplayModel_SpicyAbility", 30, Game.instance.model.GetTowerFromId("TackShooter-300").Duplicate().GetWeapon().projectile.display.Cast<AssetPathModel>(), towerModel.GetWeapon().projectile, "ChangeProjectileDisplayModel_SpicyAbility"));
-        //var balls = abilityChurchill.GetBehavior<MutateProjectileOnAbilityModel>().projectileModel;
+        var ability = new AbilityModel("Sally_Ability_Spicy", "Spicy Shots", "Fires heated pins", 0,0, new Il2CppNinjaKiwi.Common.ResourceUtils.SpriteReference(VanillaSprites.HotShotsUpgradeIcon), 45, null, false, false, "SallyLevel3", 0.0f, 0, -1, false, false);
+        ability.AddBehavior(new LongArmOfLightModel("LongArmOfLightModel_Sally",12,1,new AssetPathModel("AssetPathModel_Spicy", new Il2CppNinjaKiwi.Common.ResourceUtils.PrefabReference(VanillaSprites.HotTack)),1,0,1, "Sally_Ability_Spicy"));
+        
         ability.AddBehavior(Game.instance.model.GetTowerFromId("Adora 3").GetDescendant<CreateEffectOnAbilityModel>().Duplicate());
         ability.AddBehavior(Game.instance.model.GetTowerFromId("CaptainChurchill 3").GetDescendant<CreateSoundOnAbilityModel>().Duplicate());
-        //abilityChurchill.RemoveBehavior<MutateCreateProjectileOnExhaustPierceOnAbilityModel>();
-        //abilityChurchill.RemoveBehavior<DamageModifierForTagModel>();
-        //balls = GetTowerModel<Sally>().GetWeapon().projectile.Duplicate();
-        //balls.pierce++;
-        //balls.GetDescendant<DamageModel>().damage++;
-        //balls.display = Game.instance.model.GetTowerFromId("TackShooter-300").Duplicate().GetWeapon().projectile.display;
+
+        var abilityBrickell = Game.instance.model.GetTowerFromId("AdmiralBrickell 5").GetDescendant<ActivateTowerDamageSupportZoneModel>().Duplicate();
+        abilityBrickell.damageIncrease = 1;
+        abilityBrickell.lifespan = 12;
+        abilityBrickell.lifespanFrames = abilityBrickell.lifespan * 60;
+        var fillterModels = abilityBrickell.filters.ToList();
+        fillterModels.Clear();
+        fillterModels.Add(new FilterInBaseTowerIdModel("Sally_FilterInBaseTowerIdModel", new Il2CppStringArray(["TackShooter"])));
+        abilityBrickell.filters = fillterModels.ToIl2CppReferenceArray();
+        ability.AddBehavior(abilityBrickell);
+        ability.AddBehavior(Game.instance.model.GetTowerFromId("CaptainChurchill 3").GetDescendant<CreateSoundOnAbilityModel>().Duplicate());
+
+        ability.AddBehavior(Game.instance.model.GetTowerFromId("AdmiralBrickell 5").GetDescendant<CreateEffectOnAbilityModel>().Duplicate());
+
+        foreach (var CreateEffectOnAbilityModel in ability.GetDescendants<CreateEffectOnAbilityModel>().ToArray())
+        {
+            CreateEffectOnAbilityModel.effectModel.lifespan = 12;
+        }
         towerModel.AddBehavior(ability);
     }
 }
@@ -158,12 +175,18 @@ public class SallyLevel4 : ModHeroLevel<Sally>
 }
 public class SallyLevel5 : ModHeroLevel<Sally>
 {
-    public override string Description => "Sally can detect Camo Bloons. (Not Nearby Tack Shooters and Eevee also gain camo detection.)";
+    public override string Description => "Sally can detect Camo Bloons. Also allows all Tack Shooters and Eevee in radius to attack Camo Bloons.";
     public override int Level => 5;
     public override void ApplyUpgrade(TowerModel towerModel)
     {
         towerModel.GetDescendants<FilterInvisibleModel>().ForEach(model => model.isActive = false);
 
+        var camoBuff = Game.instance.model.GetTowerFromId("MonkeyVillage-020").GetDescendant<VisibilitySupportModel>().Duplicate();
+        var fillterModels = camoBuff.filters.ToList();
+        fillterModels.Clear();
+        fillterModels.Add(new FilterInBaseTowerIdModel("Sally_FilterInBaseTowerIdModel", new Il2CppStringArray(["TackShooter", "Eevee-Eevee"])));
+        camoBuff.filters = fillterModels.ToIl2CppReferenceArray();
+        towerModel.AddBehavior(camoBuff);
     }
 }
 public class SallyLevel6 : ModHeroLevel<Sally>
@@ -180,7 +203,7 @@ public class SallyLevel6 : ModHeroLevel<Sally>
 }
 public class SallyLevel7 : ModHeroLevel<Sally>
 {
-    public override string Description => "Increased popping power. All towers in range get +1 pierce";
+    public override string Description => "Increased popping power. All towers in range get +1 pierce.";
     public override int Level => 7;
     public override void ApplyUpgrade(TowerModel towerModel)
     {
@@ -219,39 +242,36 @@ public class SallyLevel9 : ModHeroLevel<Sally>
 }
 public class SallyLevel10 : ModHeroLevel<Sally>
 {
-    public override string Description => "Freezy Frost: Fires a high pierce icicle, freezing MOAB-class Bloons";
+    public override string Description => "Freezy Frost: Fires a icicle, capable of freezing MOAB-class Bloons";
     public override int Level => 10;
     //public override string AbilityName => "Freezy Frost";
     //public override string AbilityDescription => "Fires a high pierce icicle";
     public override void ApplyUpgrade(TowerModel towerModel)
     {
 
-        var ability = new AbilityModel("Sally_Ability_Minty", "Minty Icicle", "Fires a high pierce icicle.", 0, 0, Game.instance.model.GetTowerFromId(TowerType.IceMonkey).GetUpgrade(BOTTOM, 5).icon, 30, null, false, false, "SallyLevel10", 0.0f, 0, -1, false, false);
+        var ability = new AbilityModel("Sally_Ability_Minty", "Minty Icicle", "Fires a high pierce icicle.", 0, 0, new Il2CppNinjaKiwi.Common.ResourceUtils.SpriteReference(VanillaSprites.IcicleImpaleUpgradeIcon), 30, null, false, false, "SallyLevel10", 0.0f, 0, -1, false, false);
         ability.AddBehavior(new ActivateAttackModel("ActivateAttackModel_Sally", 10, true, new Il2CppInterop.Runtime.InteropTypes.Arrays.Il2CppReferenceArray<AttackModel>(1),true,false,false,false,true));
-        ability.GetDescendant<ActivateAttackModel>().attacks[0] = Game.instance.model.GetTowerFromId("IceMonkey-205").Duplicate().GetAttackModel();
-        ability.GetDescendant<ActivateAttackModel>().attacks[0].weapons[0].projectile.pierce = 100;
-        ability.GetDescendant<ActivateAttackModel>().attacks[0].weapons[0].projectile.maxPierce = -1;
-        ability.GetDescendant<ActivateAttackModel>().attacks[0].weapons[0].projectile.AddBehavior(Game.instance.model.GetTowerFromId("Quincy").Duplicate().GetAttackModel().weapons[0].projectile.GetBehavior<RetargetOnContactModel>());
-        ability.GetDescendant<ActivateAttackModel>().attacks[0].weapons[0].projectile.GetBehavior<RetargetOnContactModel>().maxBounces = 100;
-        ability.GetDescendant<ActivateAttackModel>().attacks[0].weapons[0].projectile.GetBehavior<TravelStraitModel>().Lifespan = 3;
-        ability.GetDescendant<ActivateAttackModel>().attacks[0].weapons[0].projectile.GetBehavior<TravelStraitModel>().lifespan = 3;
-        ability.GetDescendant<ActivateAttackModel>().attacks[0].weapons[0].projectile.GetBehavior<TravelStraitModel>().Speed = 400;
-        ability.GetDescendant<ActivateAttackModel>().attacks[0].weapons[0].projectile.GetBehavior<TravelStraitModel>().speed = 400;
+        ability.GetDescendant<ActivateAttackModel>().attacks[0] = Game.instance.model.GetTowerFromId("IceMonkey-105").Duplicate().GetAttackModel();
+        //ability.GetDescendant<ActivateAttackModel>().attacks[0].weapons[0].projectile.pierce = 100;
+        //ability.GetDescendant<ActivateAttackModel>().attacks[0].weapons[0].projectile.maxPierce = -1;
+        //ability.GetDescendant<ActivateAttackModel>().attacks[0].weapons[0].projectile.AddBehavior(Game.instance.model.GetTowerFromId("Quincy").Duplicate().GetAttackModel().weapons[0].projectile.GetBehavior<RetargetOnContactModel>());
+        //ability.GetDescendant<ActivateAttackModel>().attacks[0].weapons[0].projectile.GetBehavior<RetargetOnContactModel>().maxBounces = 100;
+        //ability.GetDescendant<ActivateAttackModel>().attacks[0].weapons[0].projectile.GetBehavior<TravelStraitModel>().Lifespan = 3;
+        //ability.GetDescendant<ActivateAttackModel>().attacks[0].weapons[0].projectile.GetBehavior<TravelStraitModel>().lifespan = 3;
+        //ability.GetDescendant<ActivateAttackModel>().attacks[0].weapons[0].projectile.GetBehavior<TravelStraitModel>().Speed = 400;
+        //ability.GetDescendant<ActivateAttackModel>().attacks[0].weapons[0].projectile.GetBehavior<TravelStraitModel>().speed = 400;
         //ability.GetDescendant<ActivateAttackModel>().attacks[0].weapons[0].projectile.AddBehavior(Game.instance.model.GetTowerFromId("DartMonkey-502").GetAttackModel().weapons[0].projectile.GetBehavior<TravelStraitModel>().Duplicate());
 
         //var splat = ability.GetDescendant<ActivateAttackModel>().attacks[0].weapons[0].projectile.GetDescendant<>
         ability.GetDescendant<ActivateAttackModel>().attacks[0].weapons[0].projectile.AddBehavior(ability.GetDescendant<ActivateAttackModel>().attacks[0].weapons[0].projectile.GetBehavior<CreateProjectileOnContactModel>().GetDescendant<FreezeModel>());
-        ability.GetDescendant<ActivateAttackModel>().attacks[0].weapons[0].projectile.RemoveBehavior<CreateProjectileOnContactModel>();
-        ability.GetDescendant<ActivateAttackModel>().attacks[0].weapons[0].projectile.RemoveBehavior<CreateEffectOnContactModel>();
+        //ability.GetDescendant<ActivateAttackModel>().attacks[0].weapons[0].projectile.RemoveBehavior<CreateProjectileOnContactModel>();
+        //ability.GetDescendant<ActivateAttackModel>().attacks[0].weapons[0].projectile.RemoveBehavior<CreateEffectOnContactModel>();
         ability.GetDescendant<ActivateAttackModel>().attacks[0].weapons[0].projectile.AddBehavior(Game.instance.model.GetTowerFromId("DarkPhoenixV1").GetDescendant<DamageModifierForTagModel>());
 
         ability.GetDescendant<ActivateAttackModel>().attacks[0].weapons[0].projectile.GetDescendant<FreezeModel>().layers = 10;
         ability.GetDescendant<ActivateAttackModel>().attacks[0].weapons[0].projectile.GetDescendant<FreezeModel>().Lifespan = 10;
         ability.GetDescendant<ActivateAttackModel>().attacks[0].weapons[0].projectile.GetDescendant<FreezeModel>().lifespan = 10;
         ability.GetDescendant<ActivateAttackModel>().attacks[0].weapons[0].projectile.GetDescendant<FreezeModel>().damageModel.damage--;
-
-
-
 
         towerModel.AddBehavior(ability);
     }
@@ -269,25 +289,36 @@ public class SallyLevel11 : ModHeroLevel<Sally>
 
 public class SallyLevel12 : ModHeroLevel<Sally>
 {
-    public override string Description => "Not Implemented :(";
+    public override string Description => "(Bugged) Bloon Bleed: Pins causes a slow damage over time effect. Does not affect MOAB-class Bloons, nor stack with Sauda's Bloon Bleed.";
     public override int Level => 12;
     public override void ApplyUpgrade(TowerModel towerModel)
     {
-        //var Shinobi = Game.instance.model.GetTowerFromId("NinjaMonkey-030").GetDescendant<SupportShinobiTacticsModel>().Duplicate();
-        //var ShinobiA = Shinobi.Duplicate();
-        //var ShinobiB = Shinobi.Duplicate();
-        //ShinobiA.filters[0] = null;
-        //ShinobiA.name = "SupportShinobiTacticsModel_Support_";
-        //ShinobiB.filters[0].GetDescendant<FilterInBaseTowerIdModel>().baseIds[0] = "TackShooter";
-        //ShinobiB.filters[0].GetDescendant<FilterInBaseTowerIdModel>().baseIds = new Il2CppInterop.Runtime.InteropTypes.Arrays.Il2CppStringArray(3);
-        //ShinobiB.filters[0].GetDescendant<FilterInBaseTowerIdModel>().baseIds[0] = "TackShooter";
-        //ShinobiB.filters[0].GetDescendant<FilterInBaseTowerIdModel>().baseIds[1] = "Eevee-Eevee";
-        //ShinobiB.filters[0].GetDescendant<FilterInBaseTowerIdModel>().baseIds[2] = "SallyPokehellHero-Sally";
-        ///ShinobiB.name = "SupportShinobiTacticsModel_Support_Tack";
-        ///towerModel.AddBehavior(ShinobiA);
-        ///towerModel.AddBehavior(ShinobiB);
-        ///towerModel.AddBehavior(ShinobiB);
-        //towerModel.GetWeapons().ForEach(model => model.rate -= 0.1f);
+        //towerModel.GetWeapon().projectile.AddBehavior(Game.instance.model.GetTowerFromId("DartlingGunner-200").Duplicate().GetAttackModel().weapons[0].projectile.GetDescendants<AddBehaviorToBloonModel>());
+        TowerModel dartling = Game.instance.model.GetTowerFromId(TowerType.Sauda + " 9");
+
+        foreach (var addBehaviorToBloonModel in towerModel.GetDescendants<AddBehaviorToBloonModel>().ToArray())
+        {
+            if (addBehaviorToBloonModel.name == "SaudaBleed")
+            {
+                addBehaviorToBloonModel.filters = new Il2CppReferenceArray<FilterModel>(0);
+                //var filterModels = addBehaviorToBloonModel.filters.ToList();
+                //filterModels.Add(new FilterOutTagModel("FilterOutTagModel_BloonBleed", BloonTag.Moabs, new Il2CppStringArray(0)));
+                //addBehaviorToBloonModel.filters = filterModels.ToIl2CppReferenceArray();
+                foreach (var weaponModel in towerModel.GetDescendants<WeaponModel>().ToArray())
+                {
+                    weaponModel.projectile.AddBehavior(addBehaviorToBloonModel);
+                    weaponModel.projectile.collisionPasses = new[] { 0, 1 };
+                }
+            }
+        }
+        //electricShock.overlayType = ElectricShockDisplay.CustomOverlayType;
+        //electricShock.mutationId = ElectricShockDisplay.CustomOverlayType;
+        //electricShock.filters = ???
+        //electricShock.name = "TeslaCoil_ElectricShock";
+        //paralyzeStun.layers = 3;
+
+        
+        //towerModel.GetWeapon().projectile.GetDescendant<DamageOverTimeModel>().immuneBloonProperties = BloonProperties.Purple;
     }
 }
 /// <summary>
@@ -317,70 +348,61 @@ public class SallyLevel12 : ModHeroLevel<Sally>
 /// </summary>
 public class SallyLevel13 : ModHeroLevel<Sally>
 {
-    public override string Description => "Sizzly Shots are always active,/n Buzzy Blitz: Not Implemented";
+    public override string Description => "Throws superhot pins permanently. Freezy Frost affects Lead and Camo Bloons. Sizzly Shots now gives double attack speed, but affected Monkeys can't pop Purple Bloons.";
     public override int Level => 13;
     public override void ApplyUpgrade(TowerModel towerModel)
     {
         towerModel.GetWeapon().projectile.pierce++;
         towerModel.GetWeapon().projectile.GetDamageModel().damage++;
-        towerModel.GetWeapon().projectile.display = Game.instance.model.GetTowerFromId("TackShooter-300").Duplicate().GetWeapon().projectile.display;
-        towerModel.GetAbilities().Remove(towerModel.GetAbility());
+        towerModel.GetWeapon().projectile.display = Game.instance.model.GetTowerFromId("TackShooter-300").GetWeapon().projectile.Duplicate().display;
+        towerModel.GetWeapon().projectile.GetDamageModel().immuneBloonProperties = BloonProperties.None; //
+        //towerModel.GetAbilities().Remove(towerModel.GetAbility());
+
+
+        var ability2 = towerModel.GetAbilities()[1];
+        ability2.GetDescendant<ActivateAttackModel>().attacks[0] = Game.instance.model.GetTowerFromId("IceMonkey-205").Duplicate().GetAttackModel();
+        ability2.GetDescendant<ActivateAttackModel>().attacks[0].weapons[0].projectile.AddBehavior(ability2.GetDescendant<ActivateAttackModel>().attacks[0].weapons[0].projectile.GetBehavior<CreateProjectileOnContactModel>().GetDescendant<FreezeModel>());
+        ability2.GetDescendant<ActivateAttackModel>().attacks[0].weapons[0].projectile.AddBehavior(Game.instance.model.GetTowerFromId("DarkPhoenixV1").GetDescendant<DamageModifierForTagModel>());
+
+        ability2.GetDescendant<ActivateAttackModel>().attacks[0].weapons[0].projectile.GetDescendant<FreezeModel>().layers = 10;
+        ability2.GetDescendant<ActivateAttackModel>().attacks[0].weapons[0].projectile.GetDescendant<FreezeModel>().Lifespan = 10;
+        ability2.GetDescendant<ActivateAttackModel>().attacks[0].weapons[0].projectile.GetDescendant<FreezeModel>().lifespan = 10;
+        ability2.GetDescendant<ActivateAttackModel>().attacks[0].weapons[0].projectile.GetDescendant<FreezeModel>().damageModel.damage--;
+
+        var ability = towerModel.GetAbilities()[0];
+        ability.GetDescendant<ActivateTowerDamageSupportZoneModel>().immuneBloonProperties = BloonProperties.Purple;
+        var abilityBrickell = Game.instance.model.GetTowerFromId("AdmiralBrickell 5").GetDescendant<ActivateRateSupportZoneModel>().Duplicate();
+        abilityBrickell.lifespan = 12;
+        abilityBrickell.lifespanFrames = abilityBrickell.lifespan * 60;
+        ability.AddBehavior(abilityBrickell);
     }
 }
 public class SallyLevel14 : ModHeroLevel<Sally>
 {
-    public override string Description => "Pins do +4 damage to MOAB-Class Bloons.";
+    public override string Description => "Pins do +4 damage to MOAB-Class Bloons. Bloon Bleed affects MOAB-Class Bloons.";
     public override int Level => 14;
     public override void ApplyUpgrade(TowerModel towerModel)
     {
         towerModel.GetWeapon().projectile.AddBehavior<DamageModifierForTagModel>(new DamageModifierForTagModel("DamageModifierForTagModel_Projectile", "Moabs", 1.0f, 4.0f, false, false));
+
     }
 }
 public class SallyLevel15 : ModHeroLevel<Sally>
 {
-    public override string Description => "Ability cooldowns reduced by 25%.";
+    public override string Description => "Ability cooldowns reduced by 15%.";
     public override int Level => 15;
     public override void ApplyUpgrade(TowerModel towerModel)
     {
-        towerModel.GetAbilities().ForEach(model => model.cooldown *= 0.75f);
-        //towerModel.GetBehavior<CollectCashZoneModel>().attractRange += 15;
+        towerModel.GetAbilities().ForEach(model => model.cooldown *= 0.85f);
     }
 }
 public class SallyLevel16 : ModHeroLevel<Sally>
 {
-    public override string Description => "Pins shock bloons for 1 sec.";
+    public override string Description => "(Todo) Druids, Eevee, and Ninja Monkeys are now affected by Tack Shooter only buffs";
     public override int Level => 16;
     public override void ApplyUpgrade(TowerModel towerModel)
     {
 
-        //towerModel.GetWeapon().projectile.AddBehavior(Game.instance.model.GetTowerFromId("DartlingGunner-200").Duplicate().GetAttackModel().weapons[0].projectile.GetDescendants<AddBehaviorToBloonModel>());
-        TowerModel dartling = Game.instance.model.GetTowerFromId(TowerType.DartlingGunner + "-200");
-        TowerModel wizard = Game.instance.model.GetTowerFromId(TowerType.WizardMonkey + "-030");
-
-        AddBehaviorToBloonModel electricShock = dartling.GetDescendant<AddBehaviorToBloonModel>().Duplicate();
-        AddBehaviorToBloonModel fire = wizard.GetDescendant<AddBehaviorToBloonModel>().Duplicate();
-        //electricShock.overlayType = ElectricShockDisplay.CustomOverlayType;
-        //electricShock.mutationId = ElectricShockDisplay.CustomOverlayType;
-        electricShock.filters = null;
-        //electricShock.name = "TeslaCoil_ElectricShock";
-
-        foreach (var weaponModel in towerModel.GetDescendants<WeaponModel>().ToArray())
-        {
-            weaponModel.projectile.AddBehavior(electricShock);
-            weaponModel.projectile.collisionPasses = new[] { 0, 1 };
-        }
-        towerModel.GetWeapon().projectile.GetDescendant<DamageOverTimeModel>().immuneBloonProperties = BloonProperties.Purple;
-        /// fuck this
-        //var ability = towerModel.GetDescendant<AbilityModel>();
-        //ability.AddBehavior(new MutateProjectileOnAbilityModel("MutateProjectileOnAbilityModel_SpicyAbility", 1800, "SpicyPinsBurn", 0, new ProjectileBehaviorModel("The_Fucking_ProjectileBehaviorMode"), towerModel.GetWeapon().projectile));
-
-        //ability.GetBehavior<MutateProjectileOnAbilityModel>().projectileBehaviorModel = fire;
-        //ability.GetBehavior<MutateProjectileOnAbilityModel>().projectileBehaviorModel[0].immuneBloonProperties = BloonProperties.Purple;
-        //ability.GetBehavior<MutateProjectileOnAbilityModel>().GetDescendant<AddBehaviorToBloonModel>().lifespan = 2;
-        //ability.GetBehavior<MutateProjectileOnAbilityModel>().GetDescendant<AddBehaviorToBloonModel>().overlayType = "Fire";
-
-        //ability.GetBehavior<MutateProjectileOnAbilityModel>().projectileBehaviorModel
-        //ability.GetBehavior<MutateProjectileOnAbilityModel>().projectileBehaviorModel.overlayType = "Fire";
     }
 }
 
@@ -403,7 +425,7 @@ public class SallyLevel18 : ModHeroLevel<Sally>
     public override int Level => 18;
     public override void ApplyUpgrade(TowerModel towerModel)
     {
-
+        towerModel.GetWeapon().projectile.GetDamageModel().damage *= 2;
     }
 }
 public class SallyLevel16BuffIcon : ModBuffIcon
@@ -424,16 +446,15 @@ public class SallyLevel19 : ModHeroLevel<Sally>
 
 public class SallyLevel20 : ModHeroLevel<Sally>
 {
-    public override string Description => "Veevee Volley: Not Implemented";
+    public override string Description => "Freezy Frost now fires icicles for 10 seconds, Freezy Frost cooldown increased by 10 seconds.";
     public override int Level => 20;
     public override void ApplyUpgrade(TowerModel towerModel)
     {
-
-        towerModel.GetWeapon().projectile.AddBehavior(Game.instance.model.GetTowerFromId("DarkPhoenixV1").GetDescendant<DamageModifierForTagModel>());
-        towerModel.GetWeapon().projectile.GetDescendant<DamageModifierForTagModel>().damageAddative = 80;
-        //towerModel.GetWeapon().projectile.GetDescendant<DamageOverTimeModel>().damageModifierModels.AddTo;
-        //towerModel.GetWeapon().AddBehavior(new LifeBasedAttackSpeedModel("LifeBasedAttackSpeedModel_Sally",-0.02f,100,2,""));
-        //towerModel.GetWeapon().AddBehavior(new LifeRegenModel()
-
+        var ability = towerModel.GetAbilities()[1];
+        ability.GetDescendant<ActivateAttackModel>().isOneShot = false;
+        ability.GetDescendant<ActivateAttackModel>().lifespan = 10;
+        ability.cooldown += 10;
+        ability.Cooldown += 10;
+        ability.cooldownFrames += 600;
     }
 }
