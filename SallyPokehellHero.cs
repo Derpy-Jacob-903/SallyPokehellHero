@@ -161,6 +161,7 @@ public class SallyLevel3 : ModHeroLevel<Sally>
         {
             CreateEffectOnAbilityModel.effectModel.lifespan = 12;
         }
+        ability.addedViaUpgrade = Id;
         towerModel.AddBehavior(ability);
     }
 }
@@ -191,7 +192,7 @@ public class SallyLevel5 : ModHeroLevel<Sally>
 }
 public class SallyLevel6 : ModHeroLevel<Sally>
 {
-    public override string Description => "Pins can pop Frozen Bloons.";
+    public override string Description => "Sally's pins can pop Frozen Bloons.";
     public override int Level => 6;
     public override void ApplyUpgrade(TowerModel towerModel)
     {
@@ -242,7 +243,7 @@ public class SallyLevel9 : ModHeroLevel<Sally>
 }
 public class SallyLevel10 : ModHeroLevel<Sally>
 {
-    public override string Description => "Freezy Frost: Fires a icicle, capable of freezing MOAB-class Bloons";
+    public override string Description => "Freezy Frost: Fire an icicle, capable of freezing MOAB-class Bloons";
     public override int Level => 10;
     //public override string AbilityName => "Freezy Frost";
     //public override string AbilityDescription => "Fires a high pierce icicle";
@@ -263,7 +264,7 @@ public class SallyLevel10 : ModHeroLevel<Sally>
         //ability.GetDescendant<ActivateAttackModel>().attacks[0].weapons[0].projectile.AddBehavior(Game.instance.model.GetTowerFromId("DartMonkey-502").GetAttackModel().weapons[0].projectile.GetBehavior<TravelStraitModel>().Duplicate());
 
         //var splat = ability.GetDescendant<ActivateAttackModel>().attacks[0].weapons[0].projectile.GetDescendant<>
-        ability.GetDescendant<ActivateAttackModel>().attacks[0].weapons[0].projectile.AddBehavior(ability.GetDescendant<ActivateAttackModel>().attacks[0].weapons[0].projectile.GetBehavior<CreateProjectileOnContactModel>().GetDescendant<FreezeModel>());
+        //ability.GetDescendant<ActivateAttackModel>().attacks[0].weapons[0].projectile.AddBehavior(ability.GetDescendant<ActivateAttackModel>().attacks[0].weapons[0].projectile.GetBehavior<CreateProjectileOnContactModel>().GetDescendant<FreezeModel>());
         //ability.GetDescendant<ActivateAttackModel>().attacks[0].weapons[0].projectile.RemoveBehavior<CreateProjectileOnContactModel>();
         //ability.GetDescendant<ActivateAttackModel>().attacks[0].weapons[0].projectile.RemoveBehavior<CreateEffectOnContactModel>();
         ability.GetDescendant<ActivateAttackModel>().attacks[0].weapons[0].projectile.AddBehavior(Game.instance.model.GetTowerFromId("DarkPhoenixV1").GetDescendant<DamageModifierForTagModel>());
@@ -273,6 +274,7 @@ public class SallyLevel10 : ModHeroLevel<Sally>
         ability.GetDescendant<ActivateAttackModel>().attacks[0].weapons[0].projectile.GetDescendant<FreezeModel>().lifespan = 10;
         ability.GetDescendant<ActivateAttackModel>().attacks[0].weapons[0].projectile.GetDescendant<FreezeModel>().damageModel.damage--;
 
+        ability.addedViaUpgrade = Id;
         towerModel.AddBehavior(ability);
     }
 }
@@ -289,36 +291,27 @@ public class SallyLevel11 : ModHeroLevel<Sally>
 
 public class SallyLevel12 : ModHeroLevel<Sally>
 {
-    public override string Description => "(Bugged) Bloon Bleed: Pins causes a slow damage over time effect. Does not affect MOAB-class Bloons, nor stack with Sauda's Bloon Bleed.";
+    public override string Description => "Bloon Bleed: Every 10th attack causes a slow damage over time effect.";
     public override int Level => 12;
     public override void ApplyUpgrade(TowerModel towerModel)
     {
         //towerModel.GetWeapon().projectile.AddBehavior(Game.instance.model.GetTowerFromId("DartlingGunner-200").Duplicate().GetAttackModel().weapons[0].projectile.GetDescendants<AddBehaviorToBloonModel>());
         TowerModel dartling = Game.instance.model.GetTowerFromId(TowerType.Sauda + " 9");
 
-        foreach (var addBehaviorToBloonModel in towerModel.GetDescendants<AddBehaviorToBloonModel>().ToArray())
+        var alternateProjectileModel = new AlternateProjectileModel("", towerModel.GetAttackModel().weapons[0].projectile.Duplicate(), towerModel.GetAttackModel().weapons[0].emission.Duplicate(), 10);
+
+        foreach (var addBehaviorToBloonModel in dartling.GetDescendants<AddBehaviorToBloonModel>().ToArray())
         {
             if (addBehaviorToBloonModel.name == "SaudaBleed")
             {
-                addBehaviorToBloonModel.filters = new Il2CppReferenceArray<FilterModel>(0);
-                //var filterModels = addBehaviorToBloonModel.filters.ToList();
-                //filterModels.Add(new FilterOutTagModel("FilterOutTagModel_BloonBleed", BloonTag.Moabs, new Il2CppStringArray(0)));
-                //addBehaviorToBloonModel.filters = filterModels.ToIl2CppReferenceArray();
-                foreach (var weaponModel in towerModel.GetDescendants<WeaponModel>().ToArray())
-                {
-                    weaponModel.projectile.AddBehavior(addBehaviorToBloonModel);
-                    weaponModel.projectile.collisionPasses = new[] { 0, 1 };
-                }
+                //foreach (var weaponModel in towerModel.GetDescendants<WeaponModel>().ToArray())
+                //{
+                alternateProjectileModel.projectile.AddBehavior(addBehaviorToBloonModel);
+                alternateProjectileModel.projectile.collisionPasses = new[] { 0, 1 };
+
             }
         }
-        //electricShock.overlayType = ElectricShockDisplay.CustomOverlayType;
-        //electricShock.mutationId = ElectricShockDisplay.CustomOverlayType;
-        //electricShock.filters = ???
-        //electricShock.name = "TeslaCoil_ElectricShock";
-        //paralyzeStun.layers = 3;
-
-        
-        //towerModel.GetWeapon().projectile.GetDescendant<DamageOverTimeModel>().immuneBloonProperties = BloonProperties.Purple;
+        towerModel.GetAttackModel().weapons[0].AddBehavior(alternateProjectileModel);
     }
 }
 /// <summary>
@@ -348,7 +341,7 @@ public class SallyLevel12 : ModHeroLevel<Sally>
 /// </summary>
 public class SallyLevel13 : ModHeroLevel<Sally>
 {
-    public override string Description => "Throws superhot pins permanently. Freezy Frost affects Lead and Camo Bloons. Sizzly Shots now gives double attack speed, but affected Monkeys can't pop Purple Bloons.";
+    public override string Description => "Throws superhot pins permanently.\nFreezy Frost affects Lead Bloons.\nSizzly Shots now gives double attack speed.";
     public override int Level => 13;
     public override void ApplyUpgrade(TowerModel towerModel)
     {
@@ -358,19 +351,17 @@ public class SallyLevel13 : ModHeroLevel<Sally>
         towerModel.GetWeapon().projectile.GetDamageModel().immuneBloonProperties = BloonProperties.None; //
         //towerModel.GetAbilities().Remove(towerModel.GetAbility());
 
+        var alternateProjectile = towerModel.GetAttackModel().weapons[0].GetBehavior<AlternateProjectileModel>().projectile;
+        alternateProjectile.pierce++;
+        alternateProjectile.GetDamageModel().damage++;
+        alternateProjectile.display = Game.instance.model.GetTowerFromId("TackShooter-300").GetWeapon().projectile.Duplicate().display;
+        alternateProjectile.GetDamageModel().immuneBloonProperties = BloonProperties.None; //
 
         var ability2 = towerModel.GetAbilities()[1];
-        ability2.GetDescendant<ActivateAttackModel>().attacks[0] = Game.instance.model.GetTowerFromId("IceMonkey-205").Duplicate().GetAttackModel();
-        ability2.GetDescendant<ActivateAttackModel>().attacks[0].weapons[0].projectile.AddBehavior(ability2.GetDescendant<ActivateAttackModel>().attacks[0].weapons[0].projectile.GetBehavior<CreateProjectileOnContactModel>().GetDescendant<FreezeModel>());
-        ability2.GetDescendant<ActivateAttackModel>().attacks[0].weapons[0].projectile.AddBehavior(Game.instance.model.GetTowerFromId("DarkPhoenixV1").GetDescendant<DamageModifierForTagModel>());
-
-        ability2.GetDescendant<ActivateAttackModel>().attacks[0].weapons[0].projectile.GetDescendant<FreezeModel>().layers = 10;
-        ability2.GetDescendant<ActivateAttackModel>().attacks[0].weapons[0].projectile.GetDescendant<FreezeModel>().Lifespan = 10;
-        ability2.GetDescendant<ActivateAttackModel>().attacks[0].weapons[0].projectile.GetDescendant<FreezeModel>().lifespan = 10;
-        ability2.GetDescendant<ActivateAttackModel>().attacks[0].weapons[0].projectile.GetDescendant<FreezeModel>().damageModel.damage--;
+        ability2.GetDescendant<ActivateAttackModel>().attacks[0].weapons[0].projectile.GetDescendant<FreezeModel>().damageModel.immuneBloonProperties = BloonProperties.White;
 
         var ability = towerModel.GetAbilities()[0];
-        ability.GetDescendant<ActivateTowerDamageSupportZoneModel>().immuneBloonProperties = BloonProperties.Purple;
+        //ability.GetDescendant<ActivateTowerDamageSupportZoneModel>().immuneBloonProperties = BloonProperties.Purple;
         var abilityBrickell = Game.instance.model.GetTowerFromId("AdmiralBrickell 5").GetDescendant<ActivateRateSupportZoneModel>().Duplicate();
         abilityBrickell.lifespan = 12;
         abilityBrickell.lifespanFrames = abilityBrickell.lifespan * 60;
@@ -379,11 +370,12 @@ public class SallyLevel13 : ModHeroLevel<Sally>
 }
 public class SallyLevel14 : ModHeroLevel<Sally>
 {
-    public override string Description => "Pins do +4 damage to MOAB-Class Bloons. Bloon Bleed affects MOAB-Class Bloons.";
+    public override string Description => "Pins do +4 damage to MOAB-Class Bloons.";
     public override int Level => 14;
     public override void ApplyUpgrade(TowerModel towerModel)
     {
         towerModel.GetWeapon().projectile.AddBehavior<DamageModifierForTagModel>(new DamageModifierForTagModel("DamageModifierForTagModel_Projectile", "Moabs", 1.0f, 4.0f, false, false));
+        towerModel.GetAttackModel().weapons[0].GetBehavior<AlternateProjectileModel>().projectile.AddBehavior<DamageModifierForTagModel>(new DamageModifierForTagModel("DamageModifierForTagModel_Projectile", "Moabs", 1.0f, 4.0f, false, false));
 
     }
 }
@@ -398,17 +390,17 @@ public class SallyLevel15 : ModHeroLevel<Sally>
 }
 public class SallyLevel16 : ModHeroLevel<Sally>
 {
-    public override string Description => "(Todo) Druids, Eevee, and Ninja Monkeys are now affected by Tack Shooter only buffs";
+    public override string Description => "Bloon Bleed 2: Every 5th attack causes a slow damage over time effect.";
     public override int Level => 16;
     public override void ApplyUpgrade(TowerModel towerModel)
     {
-
+        towerModel.GetAttackModel().weapons[0].GetBehavior<AlternateProjectileModel>().interval = 5;
     }
 }
 
 public class SallyLevel17 : ModHeroLevel<Sally>
 {
-    public override string Description => "Plus 3 pierce per pin. All towers in range get +1 damage";
+    public override string Description => "Increased popping power. All towers in range get +1 damage";
     public override int Level => 17;
     public override void ApplyUpgrade(TowerModel towerModel)
     {
@@ -421,11 +413,12 @@ public class SallyLevel17 : ModHeroLevel<Sally>
 }
 public class SallyLevel18 : ModHeroLevel<Sally>
 {
-    public override string Description => "Pins pop twice as many layers of Bloon.";
+    public override string Description => "Pins pop twice as many layers of Bloon per hit.";
     public override int Level => 18;
     public override void ApplyUpgrade(TowerModel towerModel)
     {
         towerModel.GetWeapon().projectile.GetDamageModel().damage *= 2;
+        towerModel.GetAttackModel().weapons[0].GetBehavior<AlternateProjectileModel>().projectile.GetDamageModel().damage *= 2;
     }
 }
 public class SallyLevel16BuffIcon : ModBuffIcon
@@ -446,15 +439,30 @@ public class SallyLevel19 : ModHeroLevel<Sally>
 
 public class SallyLevel20 : ModHeroLevel<Sally>
 {
-    public override string Description => "Freezy Frost now fires icicles for 10 seconds, Freezy Frost cooldown increased by 10 seconds.";
+    public override string Description => "Bloon Bleed 3: Every 4th attack causes a slow damage over time effect and pop twice as many layers of Bloon.\nAbility cooldowns reduced by 15%.\nPins do +5 more damage to MOAB-Class Bloons.";
     public override int Level => 20;
     public override void ApplyUpgrade(TowerModel towerModel)
     {
-        var ability = towerModel.GetAbilities()[1];
-        ability.GetDescendant<ActivateAttackModel>().isOneShot = false;
-        ability.GetDescendant<ActivateAttackModel>().lifespan = 10;
-        ability.cooldown += 10;
-        ability.Cooldown += 10;
-        ability.cooldownFrames += 600;
+        towerModel.GetAttackModel().weapons[0].GetBehavior<AlternateProjectileModel>().projectile.GetDamageModel().damage *= 2;
+        towerModel.GetAttackModel().weapons[0].GetBehavior<AlternateProjectileModel>().interval = 4;
+
+        towerModel.GetAbilities().ForEach(model => model.cooldown *= 0.85f);
+
+        towerModel.GetWeapon().projectile.GetBehavior<DamageModifierForTagModel>().damageAddative += 5;
+        towerModel.GetAttackModel().weapons[0].GetBehavior<AlternateProjectileModel>().projectile.GetBehavior<DamageModifierForTagModel>().damageAddative += 5;
     }
 }
+//public class SallyLevel20 : ModHeroLevel<Sally>
+//{
+    //public override string Description => "Freezy Frost now fires icicles for 10 seconds, Freezy Frost cooldown increased by 10 seconds.";
+    //public override int Level => 20;
+    //public override void ApplyUpgrade(TowerModel towerModel)
+    //{
+        //var ability = towerModel.GetAbilities()[1];
+        //ability.GetDescendant<ActivateAttackModel>().isOneShot = false;
+        //ability.GetDescendant<ActivateAttackModel>().lifespan = 10;
+        //ability.cooldown += 10;
+        //ability.Cooldown += 10;
+        //ability.cooldownFrames += 600;
+    //}
+//}
