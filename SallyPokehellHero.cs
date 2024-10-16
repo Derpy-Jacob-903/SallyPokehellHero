@@ -144,7 +144,7 @@ public class SallyLevel3 : ModHeroLevel<Sally>
 
 
         ability.AddBehavior(new LongArmOfLightModel("LongArmOfLightModel_Sally", 12, 1, new AssetPathModel("AssetPathModel_Spicy", 
-            new Il2CppNinjaKiwi.Common.ResourceUtils.PrefabReference(Game.instance.model.GetTowerFromId("TackShooter-300").GetWeapon().projectile.Duplicate().display.GUID)), 1, 0, 1, "Sally_Ability_Spicy"));
+            new Il2CppNinjaKiwi.Common.ResourceUtils.PrefabReference(Game.instance.model.GetTowerFromId("TackShooter-300").GetWeapon().projectile.Duplicate().display.AssetGUID)), 1, 0, 1, "Sally_Ability_Spicy"));
         
         ability.AddBehavior(Game.instance.model.GetTowerFromId("Adora 3").GetDescendant<CreateEffectOnAbilityModel>().Duplicate());
         ability.AddBehavior(Game.instance.model.GetTowerFromId("CaptainChurchill 3").GetDescendant<CreateSoundOnAbilityModel>().Duplicate());
