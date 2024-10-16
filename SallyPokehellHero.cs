@@ -140,7 +140,7 @@ public class SallyLevel3 : ModHeroLevel<Sally>
 
         var ability = new AbilityModel("Sally_Ability_Spicy", "Spicy Shots", "Fires heated pins", 0,0, new Il2CppNinjaKiwi.Common.ResourceUtils.SpriteReference(VanillaSprites.HotShotsUpgradeIcon), 45, null, false, false, "SallyLevel3", 0.0f, 0, -1, false, false);
         ability.AddBehavior(new LongArmOfLightModel("LongArmOfLightModel_Sally", 12, 1, new AssetPathModel("AssetPathModel_Spicy",
-            new Il2CppNinjaKiwi.Common.ResourceUtils.PrefabReference(Game.instance.model.GetTowerFromId("TackShooter-300").GetWeapon().projectile.Duplicate().display.GUID)), 1, 0, 1, "Sally_Ability_Spicy"));
+            new Il2CppNinjaKiwi.Common.ResourceUtils.PrefabReference(Game.instance.model.GetTowerFromId("TackShooter-300").GetWeapon().projectile.Duplicate().display.AssetGUID)), 1, 0, 1, "Sally_Ability_Spicy"));
 
         ability.AddBehavior(Game.instance.model.GetTowerFromId("Adora 3").GetDescendant<CreateEffectOnAbilityModel>().Duplicate());
         ability.AddBehavior(Game.instance.model.GetTowerFromId("CaptainChurchill 3").GetDescendant<CreateSoundOnAbilityModel>().Duplicate());
